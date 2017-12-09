@@ -2,7 +2,4 @@
 export * from './auth.service';
 export * from './error.service';
 export * from './base.service';
-<% if ( isIo === 'enabled' ){ -%>export * from './real.time';
-<% }
--%>
-
+export * from './real.time';

@@ -1,5 +1,19 @@
 /* tslint:disable */
-<%- buildBaseServiceImports(isIo)  %>
+import { Injectable, Inject, Optional } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpRequest, HttpParams, HttpResponse } from '@angular/common/http';
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { ErrorHandler } from './error.service';
+import { LoopBackAuth } from './auth.service';
+import { LoopBackConfig } from '../../lb.config';
+import { LoopBackFilter, AccessToken } from '../../models/BaseModels';
+import { SDKModels } from '../custom/SDKModels';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
+import { SocketConnection } from '../../sockets/socket.connections';
 // Making Sure EventSource Type is available to avoid compilation issues.
 declare var EventSource: any;
 /**
@@ -20,7 +34,11 @@ export abstract class BaseLoopBackApi {
   protected model: any;
 
   constructor(
-    <%- buildServiceDI(isIo) %>
+    @Inject(HttpClient) protected http: HttpClient,
+    @Inject(SocketConnection) protected connection: SocketConnection,
+    @Inject(SDKModels) protected models: SDKModels,
+    @Inject(LoopBackAuth) protected auth: LoopBackAuth,
+    @Optional() @Inject(ErrorHandler) protected errorHandler: ErrorHandler
   ) {
     this.model = this.models.get(this.getModelName());
   }
@@ -50,7 +68,6 @@ export abstract class BaseLoopBackApi {
       url = url.replace(new RegExp(":" + key + "(\/|$)", "g"), routeParams[key] + "$1")
     });
     if (pubsub) {
-<% if ( isIo === 'enabled' ){ -%>
       if (url.match(/fk/)) {
         let arr = url.split('/'); arr.pop();
         url = arr.join('/');
@@ -59,9 +76,6 @@ export abstract class BaseLoopBackApi {
       let subject: Subject<any> = new Subject<any>();
       this.connection.on(event, (res: any) => subject.next(res));
       return subject.asObservable();
-<% } else { -%>
-      console.info('SDK: PubSub functionality is disabled, generate SDK using -io enabled');
-<% } -%>
     } else {
       let httpParams = new HttpParams();
       // Headers to be sent
@@ -149,7 +163,6 @@ export abstract class BaseLoopBackApi {
       this.model.getModelDefinition().path
     ].join('/'), undefined, undefined, { data }, null, customHeaders).map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onCreate
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -167,7 +180,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, undefined, { data }, true)
     .map((datum: T[]) => datum.map((data: T) => this.model.factory(data)));
   }
-<% } -%>
   /**
    * @method createMany
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -185,7 +197,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, undefined, { data }, null, customHeaders)
     .map((datum: T[]) => datum.map((data: T) => this.model.factory(data)));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onCreateMany
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -203,7 +214,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, undefined, { data }, true)
     .map((datum: T[]) => datum.map((data: T) => this.model.factory(data)));
   }
-<% } -%>
   /**
    * @method findById
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -291,7 +301,6 @@ export abstract class BaseLoopBackApi {
       'update'
     ].join('/'), undefined, _urlParams, { data }, null, customHeaders);
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onUpdateAll
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -310,7 +319,6 @@ export abstract class BaseLoopBackApi {
       'update'
     ].join('/'), undefined, _urlParams, { data }, true);
   }
-<% } -%>
   /**
    * @method deleteById
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -328,7 +336,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), { id }, undefined, undefined, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onDeleteById
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -345,7 +352,6 @@ export abstract class BaseLoopBackApi {
       ':id'
     ].join('/'), { id }, undefined, undefined, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method count
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -381,7 +387,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), { id }, undefined, { data }, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onUpdateAttributes
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -398,7 +403,6 @@ export abstract class BaseLoopBackApi {
       ':id'
     ].join('/'), { id }, undefined, { data }, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method upsert
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -415,7 +419,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, undefined, { data }, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onUpsert
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -431,7 +434,6 @@ export abstract class BaseLoopBackApi {
       this.model.getModelDefinition().path,
     ].join('/'), undefined, undefined, { data }, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method upsertPatch
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -448,7 +450,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, undefined, { data }, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onUpsertPatch
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -464,7 +465,6 @@ export abstract class BaseLoopBackApi {
       this.model.getModelDefinition().path,
     ].join('/'), undefined, undefined, { data }, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method upsertWithWhere
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -484,7 +484,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, _urlParams, { data }, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onUpsertWithWhere
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -503,7 +502,6 @@ export abstract class BaseLoopBackApi {
       'upsertWithWhere'
     ].join('/'), undefined, _urlParams, { data }, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method replaceOrCreate
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -521,7 +519,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), undefined, undefined, { data }, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onReplaceOrCreate
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -538,7 +535,6 @@ export abstract class BaseLoopBackApi {
       'replaceOrCreate'
     ].join('/'), undefined, undefined, { data }, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method replaceById
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -556,7 +552,6 @@ export abstract class BaseLoopBackApi {
     ].join('/'), { id }, undefined, { data }, null, customHeaders)
     .map((data: T) => this.model.factory(data));
   }
-<% if ( isIo === 'enabled' ){ -%>
   /**
    * @method onReplaceById
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>
@@ -573,7 +568,6 @@ export abstract class BaseLoopBackApi {
       ':id', 'replace'
     ].join('/'), { id }, undefined, { data }, true).map((data: T) => this.model.factory(data));
   }
-<% } -%>
   /**
    * @method createChangeStream
    * @author Jonathan Casarrubias <t: johncasarrubias, gh: mean-expert-official>

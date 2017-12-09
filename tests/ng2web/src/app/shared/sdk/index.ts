@@ -34,8 +34,33 @@
 * export class AppModule { }
 *
 **/
-<%- buildModuleImports(models, isIo, driver) %>
-<% if ( driver === 'ng2web' || driver === 'ng2universal' ) { -%>
+import { ErrorHandler } from './services/core/error.service';
+import { LoopBackAuth } from './services/core/auth.service';
+import { LoggerService } from './services/custom/logger.service';
+import { SDKModels } from './services/custom/SDKModels';
+import { InternalStorage, SDKStorage } from './storage/storage.swaps';
+import { HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { CookieBrowser } from './storage/cookie.browser';
+import { StorageBrowser } from './storage/storage.browser';
+import { SocketBrowser } from './sockets/socket.browser';
+import { SocketDriver } from './sockets/socket.driver';
+import { SocketConnection } from './sockets/socket.connections';
+import { RealTime } from './services/core/real.time';
+import { UserApi } from './services/custom/User';
+import { AccountApi } from './services/custom/Account';
+import { ApplicationCredentialApi } from './services/custom/ApplicationCredential';
+import { CategoryApi } from './services/custom/Category';
+import { CoreApi } from './services/custom/Core';
+import { LikeApi } from './services/custom/Like';
+import { MessageApi } from './services/custom/Message';
+import { RoomApi } from './services/custom/Room';
+import { RoomAccountApi } from './services/custom/RoomAccount';
+import { RoomAdminApi } from './services/custom/RoomAdmin';
+import { StorageApi } from './services/custom/Storage';
+import { UserCredentialApi } from './services/custom/UserCredential';
+import { UserIdentityApi } from './services/custom/UserIdentity';
 /**
 * @module SDKBrowserModule
 * @description
@@ -50,7 +75,8 @@
   declarations: [ ],
   exports:      [ ],
   providers:    [
-    <%- buildNgProviders(isIo) %>
+    ErrorHandler,
+    SocketConnection
   ]
 })
 export class SDKBrowserModule {
@@ -61,62 +87,30 @@ export class SDKBrowserModule {
     return {
       ngModule  : SDKBrowserModule,
       providers : [
-        <%- buildNgModuleImports(models, 'browser', isIo, driver) %>
+        LoopBackAuth,
+        LoggerService,
+        SDKModels,
+        RealTime,
+        UserApi,
+        AccountApi,
+        ApplicationCredentialApi,
+        CategoryApi,
+        CoreApi,
+        LikeApi,
+        MessageApi,
+        RoomApi,
+        RoomAccountApi,
+        RoomAdminApi,
+        StorageApi,
+        UserCredentialApi,
+        UserIdentityApi,
+        internalStorageProvider,
+        { provide: SDKStorage, useClass: StorageBrowser },
+        { provide: SocketDriver, useClass: SocketBrowser }
       ]
     };
   }
 }
-<% } -%>
-<% if ( driver === 'ng2universal' ) { -%>
-/**
-* @module SDKNodeModule
-* @description
-* This module should be imported when building a Angular Universal Application.
-**/
-@NgModule({
-  imports:      [ CommonModule, HttpModule ],
-  declarations: [ ],
-  exports:      [ ],
-  providers:    [
-    <%- buildNgProviders(isIo) %>
-  ]
-})
-export class SDKNodeModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule  : SDKNodeModule,
-      providers : [
-        <%- buildNgModuleImports(models, 'node', isIo, driver) %>
-      ]
-    };
-  }
-}
-<% } -%>
-<% if ( driver === 'ng2native' ) { -%>
-/**
-* @module SDKNativeModule
-* @description
-* This module should be imported when building a NativeScript Applications.
-**/
-@NgModule({
-  imports:      [ CommonModule, HttpModule ],
-  declarations: [ ],
-  exports:      [ ],
-  providers:    [
-    <%- buildNgProviders(isIo) %>
-  ]
-})
-export class SDKNativeModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule  : SDKNativeModule,
-      providers : [
-        <%- buildNgModuleImports(models, 'nativescript', isIo, driver) %>
-      ]
-    };
-  }
-}
-<% } -%>
 /**
 * Have Fun!!!
 * - Jon
@@ -124,16 +118,12 @@ export class SDKNativeModule {
 export * from './models/index';
 export * from './services/index';
 export * from './lb.config';
-<% if ( driver === 'ng2web' ) { -%>
 export * from './storage/storage.swaps';
 export { CookieBrowser } from './storage/cookie.browser';
 export { StorageBrowser } from './storage/storage.browser';
-<% } -%>
 
-<% if ( isNgrx === 'enabled' || isNgrx === 'orm' ) { -%>
 export * from './actions/index';
 export * from './reducers/index';
 export * from './state';
 export * from './guards/index';
 export * from './resolvers/index';
-<% } -%>

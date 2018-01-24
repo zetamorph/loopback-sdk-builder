@@ -31,10 +31,9 @@ export class CookieBrowser {
         return null;
       }
 
-      this.cookies[key] = this.parse(cookie.split('=').slice(1).join('='));
+      this.cookies[key] = this.parse(decodeURI(cookie.split('=').slice(1).join('=')));
     }
-
-    return decodeURI(this.cookies[key]);
+    return this.cookies[key];
   }
   /**
    * @method set

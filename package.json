@@ -1,6 +1,6 @@
 {
-  "name": "@mean-expert/loopback-sdk-builder",
-  "version": "2.1.2",
+  "name": "@flyacts/loopback-sdk-builder",
+  "version": "2.1.3",
   "description": "Tool for auto-generating Software Development Kits (SDKs) for LoopBack",
   "bin": {
     "lb-sdk": "bin/lb-sdk"
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mean-expert-official/loopback-sdk-builder.git"
+    "url": "git://github.com/flyacts/loopback-sdk-builder.git"
   },
   "keywords": [
     "loopback",
@@ -91,6 +91,11 @@
       "name": "Michał Frączkiewicz",
       "email": "fraczkiewicz.m@gmail.com",
       "url": "https://github.com/bonaventoora"
+    },
+    {
+      "name": "FLYACTS GmbH",
+      "email": "dev@flyacts.com",
+      "url": "https://github.com/flyacts"
     }
   ],
   "files": [

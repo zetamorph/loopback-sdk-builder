@@ -34,7 +34,7 @@ export class CookieBrowser {
       this.cookies[key] = this.parse(cookie.split('=').slice(1).join('='));
     }
 
-    return this.cookies[key];
+    return decodeURI(this.cookies[key]);
   }
   /**
    * @method set
@@ -46,7 +46,7 @@ export class CookieBrowser {
    * The setter will return any type of data persisted in cookies.
    **/
   set(key: string, value: any, expires?: Date): void {
-    this.cookies[key] = value;
+    this.cookies[key] = encodeURI(value);
     let cookie = `${key}=${value}; path=/${expires ? `; expires=${ expires.toUTCString() }` : ''}`;
     window.document.cookie = cookie;
   }

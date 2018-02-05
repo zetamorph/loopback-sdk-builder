@@ -45,8 +45,8 @@ export class CookieBrowser {
    * The setter will return any type of data persisted in cookies.
    **/
   set(key: string, value: any, expires?: Date): void {
-    this.cookies[key] = encodeURI(value);
-    let cookie = `${key}=${value}; path=/${expires ? `; expires=${ expires.toUTCString() }` : ''}`;
+    this.cookies[key] = value;
+    let cookie = `${key}=${encodeURI(value)}; path=/${expires ? `; expires=${ expires.toUTCString() }` : ''}`;
     window.document.cookie = cookie;
   }
   /**

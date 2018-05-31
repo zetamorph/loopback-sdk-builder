@@ -7,8 +7,8 @@ import { LoopBackConfig } from '../../lb.config';
 import { LoopBackAuth } from '../core/auth.service';
 import { LoopBackFilter, SDKToken, AccessToken } from '../../models/BaseModels';
 import { ErrorHandler } from '../core/error.service';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Rx';
+import { Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Account } from '../../models/Account';
 import { SocketConnection } from '../../sockets/socket.connections';
 import { RoomAccount } from '../../models/RoomAccount';
@@ -502,7 +502,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * @param {any} id Account id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -597,7 +597,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countAccessTokens(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -618,7 +618,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * @param {any} id Account id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -713,7 +713,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countRooms(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -734,7 +734,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * @param {any} id Account id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -829,7 +829,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countAdministrations(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -925,11 +925,18 @@ export class AccountApi extends BaseLoopBackApi {
    *   populated with the actual data once the response is returned
    *   from the server.
    *
+<<<<<<< HEAD
    * Der Antworthauptteil enthält Eigenschaften des bei der Anmeldung erstellten AccessToken.
    * Abhängig vom Wert des Parameters 'include' kann der Hauptteil zusätzliche Eigenschaften enthalten:
-   * 
+   *
    *   - user - U+007BUserU+007D - Daten des derzeit angemeldeten Benutzers. (`include=user`)
-   * 
+=======
+   * The response body contains properties of the AccessToken created on login.
+   * Depending on the value of `include` parameter, the body may contain additional properties:
+   *
+   *   - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
+>>>>>>> 63d01a091fa45da5e721efd5929f7718c0470883
+   *
    *
    */
   public login(credentials: any, include: any = 'user', rememberMe: boolean = true, customHeaders?: Function): Observable<any> {
@@ -943,16 +950,25 @@ export class AccountApi extends BaseLoopBackApi {
     let _urlParams: any = {};
     if (typeof include !== 'undefined' && include !== null) _urlParams.include = include;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders)
+<<<<<<< HEAD
       .map(
+=======
+      .pipe(
+        map(
+>>>>>>> 63d01a091fa45da5e721efd5929f7718c0470883
         (response: any) => {
           response.ttl = parseInt(response.ttl);
           response.rememberMe = rememberMe;
           this.auth.setToken(response);
           return response;
         }
+<<<<<<< HEAD
+=======
+      )
+>>>>>>> 63d01a091fa45da5e721efd5929f7718c0470883
       );
       return result;
-      
+
   }
 
   /**
@@ -976,7 +992,7 @@ export class AccountApi extends BaseLoopBackApi {
     let _postBody: any = {};
     let _urlParams: any = {};
        _urlParams.access_token = this.auth.getAccessTokenId();
-    this.auth.clear(); 
+    this.auth.clear();
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }
@@ -1012,11 +1028,11 @@ export class AccountApi extends BaseLoopBackApi {
   /**
    * Confirm a user registration with identity verification token.
    *
-   * @param {string} uid 
+   * @param {string} uid
    *
-   * @param {string} token 
+   * @param {string} token
    *
-   * @param {string} redirect 
+   * @param {string} redirect
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1069,9 +1085,9 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * @param {object} data Request data.
    *
-   *  - `oldPassword` – `{string}` - 
+   *  - `oldPassword` – `{string}` -
    *
-   *  - `newPassword` – `{string}` - 
+   *  - `newPassword` – `{string}` -
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1100,7 +1116,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * @param {object} data Request data.
    *
-   *  - `newPassword` – `{string}` - 
+   *  - `newPassword` – `{string}` -
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1134,7 +1150,7 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `result` – `{any}` - 
+   *  - `result` – `{any}` -
    */
   public myRemote(customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1154,9 +1170,9 @@ export class AccountApi extends BaseLoopBackApi {
    *
    * @param {object} custom {"start": date, "end": date }
    *
-   * @param {object} where where filter 
+   * @param {object} where where filter
    *
-   * @param {string} groupBy group by filter 
+   * @param {string} groupBy group by filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned

@@ -70,7 +70,7 @@ export class CookieBrowser {
    **/
   private parse(value: any) {
     try {
-        return JSON.parse(value);
+        return JSON.parse(decodeURI(value));
     } catch (e) {
         return value;
     }
